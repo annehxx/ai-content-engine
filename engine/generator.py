@@ -5,12 +5,20 @@ from pathlib import Path
 from PIL import Image, ImageDraw
 
 from config import OUTPUT_DIR, PLATFORM_CONFIGS
-from engine.background import make_background
+from engine.background import load_cover_overlay, make_background
 from engine.export import ExportError, ensure_output_dir, save_slide
 from engine.image_tools import add_shadow, contain_image, open_product_image
 from engine.layout import Box, cover_boxes, product_slide_boxes
 from engine.products import PostRecord, ProductDataError, load_posts
-from engine.typography import centered_text, draw_right_aligned, fit_text, load_font
+from engine.typography import (
+    centered_text,
+    draw_right_aligned,
+    fit_text,
+    load_body_font,
+    load_font,
+    load_subtitle_font,
+    load_title_font,
+)
 
 
 class GeneratorError(Exception):
@@ -63,37 +71,63 @@ class ContentGenerator:
         add_shadow(canvas, fitted, x, y)
         canvas.alpha_composite(fitted, (x, y))
 
+    def _split_cover_title(self, title: str) -> tuple[str, str]:
+        parts = [part for part in title.upper().split() if part]
+        if not parts:
+            return "", ""
+        if len(parts) == 1:
+            return parts[0], ""
+        return parts[0], " ".join(parts[1:])
+
     def _create_cover(self, post: PostRecord) -> Image.Image:
         canvas = self._base_canvas()
-        draw = ImageDraw.Draw(canvas)
-        title_font = fit_text(draw, post.title, 760, 88, 42)
-        centered_text(
-            draw,
-            post.title.upper(),
-            95,
-            title_font,
-            self.platform.text_color,
-            self.platform.width,
-        )
+        overlay = load_cover_overlay(self.platform.width, self.platform.height, opacity=0.5)
+        if overlay is not None:
+            canvas.alpha_composite(overlay)
 
-        label = Image.new("RGBA", (700, 130), (0, 0, 0, 0))
+        draw = ImageDraw.Draw(canvas)
+        top_title, bottom_title = self._split_cover_title(post.title)
+        top_font = fit_text(draw, top_title, 620, 92, 44, loader=load_title_font)
+        bottom_font = fit_text(draw, bottom_title or top_title, 620, 92, 44, loader=load_title_font)
+
+        if top_title:
+            centered_text(
+                draw,
+                top_title,
+                470,
+                top_font,
+                self.platform.text_color,
+                self.platform.width,
+            )
+
+        label = Image.new("RGBA", (560, 86), (0, 0, 0, 0))
         label_draw = ImageDraw.Draw(label)
         label_draw.rounded_rectangle(
-            (0, 0, 700, 130),
-            radius=34,
-            fill=(255, 255, 255, 235),
+            (0, 0, 560, 86),
+            radius=24,
+            fill=(255, 255, 255, 245),
         )
-        subtitle_font = fit_text(draw, post.subtitle, 610, 58, 28)
+        subtitle_font = fit_text(draw, post.subtitle.title(), 470, 54, 26, loader=load_subtitle_font)
         subtitle_bbox = subtitle_font.getbbox(post.subtitle)
         subtitle_width = subtitle_bbox[2] - subtitle_bbox[0]
         subtitle_height = subtitle_bbox[3] - subtitle_bbox[1]
         label_draw.text(
-            ((700 - subtitle_width) // 2, (130 - subtitle_height) // 2 - 6),
-            post.subtitle,
+            ((560 - subtitle_width) // 2, (86 - subtitle_height) // 2 - 5),
+            post.subtitle.title(),
             font=subtitle_font,
             fill=self.platform.text_color,
         )
-        canvas.alpha_composite(label, (190, 585))
+        canvas.alpha_composite(label, (260, 570))
+
+        if bottom_title:
+            centered_text(
+                draw,
+                bottom_title,
+                640,
+                bottom_font,
+                self.platform.text_color,
+                self.platform.width,
+            )
 
         for image_path, box in zip(post.images, cover_boxes(len(post.images))):
             self._paste_product(canvas, image_path, box)
@@ -109,20 +143,10 @@ class ContentGenerator:
         canvas = self._base_canvas()
         draw = ImageDraw.Draw(canvas)
 
-        header_font = fit_text(draw, post.title, 520, 56, 32)
-        date_font = load_font(28)
-        draw.text((95, 95), post.title.title(), font=header_font, fill=self.platform.text_color)
-        draw_right_aligned(draw, post.date, 980, 116, date_font, self.platform.text_color)
-
-        section_font = load_font(24)
-        draw_right_aligned(
-            draw,
-            f"Produkte {((chunk_index - 1) * 4) + 1}-{((chunk_index - 1) * 4) + len(images)}",
-            980,
-            160,
-            section_font,
-            self.platform.text_color,
-        )
+        header_font = fit_text(draw, post.title.title(), 380, 58, 34, loader=load_title_font)
+        date_font = load_body_font(30)
+        draw.text((105, 86), post.title.title(), font=header_font, fill=self.platform.text_color)
+        draw_right_aligned(draw, post.date, 980, 92, date_font, self.platform.text_color)
 
         for image_path, box in zip(images, product_slide_boxes(len(images))):
             self._paste_product(canvas, image_path, box)
@@ -133,14 +157,14 @@ class ContentGenerator:
         canvas = self._base_canvas()
         draw = ImageDraw.Draw(canvas)
 
-        title_font = fit_text(draw, post.title, 760, 74, 36)
-        body_font = load_font(44)
-        date_font = load_font(28)
+        title_font = fit_text(draw, post.title.title(), 520, 66, 34, loader=load_title_font)
+        body_font = fit_text(draw, "Alle Artikel findet ihr in meinem", 820, 56, 30, loader=load_body_font)
+        date_font = load_body_font(32)
 
         centered_text(
             draw,
             post.title.title(),
-            270,
+            110,
             title_font,
             self.platform.text_color,
             self.platform.width,
@@ -151,13 +175,13 @@ class ContentGenerator:
             "Amazon Storefront.",
             "Link in Bio",
         ]
-        start_y = 485
+        start_y = 470
         for line in lines:
             centered_text(draw, line, start_y, body_font, self.platform.text_color, self.platform.width)
-            start_y += 88
+            start_y += 82
 
-        centered_text(draw, post.date, 1010, date_font, self.platform.text_color, self.platform.width)
+        centered_text(draw, post.date, 1170, date_font, self.platform.text_color, self.platform.width)
 
-        icon_font = load_font(48)
-        draw.text((720, 661), "->", font=icon_font, fill=self.platform.text_color)
+        icon_font = load_body_font(54)
+        draw.text((650, 626), "🔗", font=icon_font, fill=(130, 180, 195))
         return canvas

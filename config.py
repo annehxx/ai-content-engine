@@ -12,6 +12,12 @@ ASSETS_DIR = PROJECT_ROOT / "assets"
 FONTS_DIR = ASSETS_DIR / "fonts"
 BACKGROUNDS_DIR = ASSETS_DIR / "backgrounds"
 LOGOS_DIR = ASSETS_DIR / "logos"
+BACKGROUND_FILE_CANDIDATES = [
+    "cover.png",
+    "cover.jpg",
+    "cover.jpeg",
+    "cover.webp",
+]
 
 REQUIRED_COLUMNS = [
     "post_id",

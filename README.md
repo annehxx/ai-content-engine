@@ -96,7 +96,23 @@ output/<post_id>/
 
 ## Fonts
 
-If `assets/fonts/font.ttf` exists it will be used first. Otherwise the generator falls back to Arial, then Pillow's default font.
+You can control fonts per text role:
+
+- `assets/fonts/title.ttf`
+- `assets/fonts/subtitle.ttf`
+- `assets/fonts/body.ttf`
+- fallback: `assets/fonts/font.ttf`
+
+If none of them exist the generator falls back to Arial, then Pillow's default font.
+
+## Cover Background
+
+If one of these files exists, slide 1 uses it automatically with `50%` opacity:
+
+- `assets/backgrounds/cover.png`
+- `assets/backgrounds/cover.jpg`
+- `assets/backgrounds/cover.jpeg`
+- `assets/backgrounds/cover.webp`
 
 ## Local Testing
 
