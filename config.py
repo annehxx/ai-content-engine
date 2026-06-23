@@ -18,15 +18,11 @@ REQUIRED_COLUMNS = [
     "title",
     "subtitle",
     "date",
-    "bild_1",
-    "bild_2",
-    "bild_3",
-    "bild_4",
-    "bild_5",
-    "bild_6",
-    "bild_7",
-    "bild_8",
 ]
+
+OPTIONAL_IMAGE_COLUMNS = [f"bild_{index}" for index in range(1, 9)]
+MIN_PRODUCTS = 1
+MAX_PRODUCTS = 8
 
 
 @dataclass(frozen=True)

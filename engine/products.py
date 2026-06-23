@@ -5,7 +5,7 @@ from pathlib import Path
 
 import pandas as pd
 
-from config import IMAGES_DIR, REQUIRED_COLUMNS
+from config import IMAGES_DIR, MAX_PRODUCTS, MIN_PRODUCTS, OPTIONAL_IMAGE_COLUMNS, REQUIRED_COLUMNS
 
 
 class ProductDataError(Exception):
@@ -42,12 +42,23 @@ def load_posts(csv_path: Path) -> list[PostRecord]:
         date = str(row["date"]).strip()
 
         image_paths: list[Path] = []
-        for index in range(1, 9):
-            value = str(row[f"bild_{index}"]).strip()
+        for column in OPTIONAL_IMAGE_COLUMNS:
+            value = str(row.get(column, "")).strip()
+            if not value:
+                continue
             image_path = IMAGES_DIR / value
             if not image_path.exists():
                 raise ProductDataError(f"Image not found: {image_path}")
             image_paths.append(image_path)
+
+        if len(image_paths) < MIN_PRODUCTS:
+            raise ProductDataError(
+                f"Post '{post_id}' needs at least {MIN_PRODUCTS} product image."
+            )
+        if len(image_paths) > MAX_PRODUCTS:
+            raise ProductDataError(
+                f"Post '{post_id}' supports at most {MAX_PRODUCTS} product images."
+            )
 
         posts.append(
             PostRecord(

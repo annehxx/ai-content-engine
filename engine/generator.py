@@ -8,7 +8,7 @@ from config import OUTPUT_DIR, PLATFORM_CONFIGS
 from engine.background import make_background
 from engine.export import ExportError, ensure_output_dir, save_slide
 from engine.image_tools import add_shadow, contain_image, open_product_image
-from engine.layout import Box, cover_boxes, grid_boxes
+from engine.layout import Box, cover_boxes, product_slide_boxes
 from engine.products import PostRecord, ProductDataError, load_posts
 from engine.typography import centered_text, draw_right_aligned, fit_text, load_font
 
@@ -37,12 +37,13 @@ class ContentGenerator:
         destination = OUTPUT_DIR / post.post_id
         ensure_output_dir(destination)
 
-        slides = [
-            self._create_cover(post),
-            self._create_product_slide(post, start_index=0),
-            self._create_product_slide(post, start_index=4),
-            self._create_cta(post),
-        ]
+        slides = [self._create_cover(post)]
+
+        chunks = [post.images[index : index + 4] for index in range(0, len(post.images), 4)]
+        for chunk_index, chunk in enumerate(chunks, start=1):
+            slides.append(self._create_product_slide(post, chunk, chunk_index))
+
+        slides.append(self._create_cta(post))
 
         for index, slide in enumerate(slides, start=1):
             save_slide(slide, destination / f"slide_{index}.png")
@@ -94,12 +95,17 @@ class ContentGenerator:
         )
         canvas.alpha_composite(label, (190, 585))
 
-        for image_path, box in zip(post.images, cover_boxes()):
+        for image_path, box in zip(post.images, cover_boxes(len(post.images))):
             self._paste_product(canvas, image_path, box)
 
         return canvas
 
-    def _create_product_slide(self, post: PostRecord, start_index: int) -> Image.Image:
+    def _create_product_slide(
+        self,
+        post: PostRecord,
+        images: list[Path],
+        chunk_index: int,
+    ) -> Image.Image:
         canvas = self._base_canvas()
         draw = ImageDraw.Draw(canvas)
 
@@ -108,7 +114,17 @@ class ContentGenerator:
         draw.text((95, 95), post.title.title(), font=header_font, fill=self.platform.text_color)
         draw_right_aligned(draw, post.date, 980, 116, date_font, self.platform.text_color)
 
-        for image_path, box in zip(post.images[start_index : start_index + 4], grid_boxes()):
+        section_font = load_font(24)
+        draw_right_aligned(
+            draw,
+            f"Produkte {((chunk_index - 1) * 4) + 1}-{((chunk_index - 1) * 4) + len(images)}",
+            980,
+            160,
+            section_font,
+            self.platform.text_color,
+        )
+
+        for image_path, box in zip(images, product_slide_boxes(len(images))):
             self._paste_product(canvas, image_path, box)
 
         return canvas
