@@ -7,7 +7,7 @@ from PIL import Image, ImageDraw
 from config import OUTPUT_DIR, PLATFORM_CONFIGS
 from engine.background import load_cover_overlay, make_background
 from engine.export import ExportError, ensure_output_dir, save_slide
-from engine.image_tools import add_shadow, contain_image, open_product_image
+from engine.image_tools import contain_image, open_product_image
 from engine.layout import Box, cover_boxes, product_slide_boxes
 from engine.products import PostRecord, ProductDataError, load_posts
 from engine.typography import (
@@ -68,7 +68,6 @@ class ContentGenerator:
         fitted = contain_image(product, box.width, box.height)
         x = box.x + (box.width - fitted.width) // 2
         y = box.y + (box.height - fitted.height) // 2
-        add_shadow(canvas, fitted, x, y)
         canvas.alpha_composite(fitted, (x, y))
 
     def _split_cover_title(self, title: str) -> tuple[str, str]:
