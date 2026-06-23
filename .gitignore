@@ -220,6 +220,9 @@ __marimo__/
 # Project output
 output/*
 !output/.gitkeep
+input/product.csv
+input/images/*
+!input/images/.gitkeep
 
 # Project-local generated content
 input/product.csv

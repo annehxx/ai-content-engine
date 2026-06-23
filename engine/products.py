@@ -26,7 +26,7 @@ def load_posts(csv_path: Path) -> list[PostRecord]:
         raise ProductDataError(f"CSV not found: {csv_path}")
 
     try:
-        dataframe = pd.read_csv(csv_path)
+        dataframe = pd.read_csv(csv_path, dtype=str, keep_default_na=False)
     except Exception as exc:
         raise ProductDataError(f"Could not read CSV: {csv_path}") from exc
 
