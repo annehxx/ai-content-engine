@@ -216,3 +216,15 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# Project output
+output/*
+!output/.gitkeep
+
+# Project-local generated content
+input/product.csv
+input/images/*.png
+input/images/*.jpg
+input/images/*.jpeg
+output/*
+!output/.gitkeep
