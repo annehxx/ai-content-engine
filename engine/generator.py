@@ -155,21 +155,21 @@ class ContentGenerator:
             canvas.alpha_composite(overlay)
 
         draw = ImageDraw.Draw(canvas)
+        self._draw_pinterest_frame(draw)
 
         for image_path, box in zip(post.images, pinterest_boxes(len(post.images))):
             self._paste_product(canvas, image_path, box)
 
-        title_font = fit_text(draw, post.subtitle.title(), 620, 84, 40, loader=load_title_font)
-        stack_font = fit_text(draw, post.title.title(), 600, 82, 40, loader=load_body_font)
-        accent_font = load_body_font(58)
+        title_font = fit_text(draw, post.subtitle.title(), 720, 86, 44, loader=load_title_font)
+        stack_font = fit_text(draw, post.title.title(), 620, 78, 42, loader=load_body_font)
 
-        title_y = 655
+        title_y = 645
         centered_text(
             draw,
             post.subtitle.title(),
             title_y,
             title_font,
-            (35, 45, 75),
+            (15, 15, 15),
             self.platform.width,
         )
 
@@ -181,21 +181,19 @@ class ContentGenerator:
                 line,
                 current_y,
                 stack_font,
-                (20, 32, 60),
+                (15, 15, 15),
                 self.platform.width,
             )
             current_y += 78
 
-        centered_text(
-            draw,
-            "♥",
-            current_y + 18,
-            accent_font,
-            (242, 179, 190),
-            self.platform.width,
-        )
-
         return canvas
+
+    def _draw_pinterest_frame(self, draw: ImageDraw.ImageDraw) -> None:
+        border_color = (178, 170, 160, 150)
+        outer = (58, 58, self.platform.width - 58, self.platform.height - 58)
+        inner = (76, 76, self.platform.width - 76, self.platform.height - 76)
+        draw.rounded_rectangle(outer, radius=18, outline=border_color, width=2)
+        draw.rounded_rectangle(inner, radius=16, outline=(215, 210, 204, 130), width=1)
 
     def _split_pinterest_title(self, title: str) -> list[str]:
         parts = [part for part in title.upper().split() if part]
