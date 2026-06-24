@@ -2,15 +2,13 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from PIL import Image, ImageDraw
+from PIL import Image
 
 from config import BACKGROUND_FILE_CANDIDATES, BACKGROUNDS_DIR
 
 
 def make_background(width: int, height: int, color: tuple[int, int, int]) -> Image.Image:
     image = Image.new("RGBA", (width, height), color + (255,))
-    draw = ImageDraw.Draw(image)
-    draw.rounded_rectangle((70, 100, width - 70, height - 100), radius=42, outline=(255, 255, 255, 45), width=3)
     return image
 
 
