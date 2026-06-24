@@ -191,9 +191,7 @@ class ContentGenerator:
     def _draw_pinterest_frame(self, draw: ImageDraw.ImageDraw) -> None:
         border_color = (178, 170, 160, 150)
         outer = (58, 58, self.platform.width - 58, self.platform.height - 58)
-        inner = (76, 76, self.platform.width - 76, self.platform.height - 76)
         draw.rounded_rectangle(outer, radius=18, outline=border_color, width=2)
-        draw.rounded_rectangle(inner, radius=16, outline=(215, 210, 204, 130), width=1)
 
     def _split_pinterest_title(self, title: str) -> list[str]:
         parts = [part for part in title.upper().split() if part]
