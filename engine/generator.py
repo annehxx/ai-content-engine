@@ -195,10 +195,7 @@ class ContentGenerator:
 
     def _split_pinterest_title(self, title: str) -> list[str]:
         parts = [part for part in title.upper().split() if part]
-        if len(parts) <= 2:
-            return [" ".join(parts)] if parts else [""]
-        mid = (len(parts) + 1) // 2
-        return [" ".join(parts[:mid]), " ".join(parts[mid:])]
+        return [" ".join(parts)] if parts else [""]
 
     def _create_product_slide(
         self,
