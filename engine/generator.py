@@ -160,21 +160,12 @@ class ContentGenerator:
         for image_path, box in zip(post.images, pinterest_boxes(len(post.images))):
             self._paste_product(canvas, image_path, box)
 
-        title_font = fit_text(draw, post.subtitle.title(), 720, 86, 44, loader=load_title_font)
-        stack_font = fit_text(draw, post.title.title(), 620, 78, 42, loader=load_body_font)
+        stack_lines = self._split_pinterest_title(post.title)
+        stack_font = fit_text(draw, post.title.title(), 720, 86, 44, loader=load_title_font)
+        subtitle_font = fit_text(draw, post.subtitle.title(), 520, 54, 28, loader=load_body_font)
 
         title_y = 645
-        centered_text(
-            draw,
-            post.subtitle.title(),
-            title_y,
-            title_font,
-            (15, 15, 15),
-            self.platform.width,
-        )
-
-        stack_lines = self._split_pinterest_title(post.title)
-        current_y = title_y + 92
+        current_y = title_y
         for line in stack_lines:
             centered_text(
                 draw,
@@ -185,6 +176,15 @@ class ContentGenerator:
                 self.platform.width,
             )
             current_y += 78
+
+        centered_text(
+            draw,
+            post.subtitle.title(),
+            current_y + 10,
+            subtitle_font,
+            (15, 15, 15),
+            self.platform.width,
+        )
 
         return canvas
 
