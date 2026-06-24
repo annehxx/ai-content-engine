@@ -67,9 +67,9 @@ python main.py --csv input/product.csv --platform tiktok
 Use the example file as a template:
 
 ```csv
-post_id,title,subtitle,date,bild_1,bild_2,bild_3,bild_4,bild_5,bild_6,bild_7,bild_8
-001,AMAZON FINDS,Pilz Lampen,23.06.26,bild_1.png,bild_2.png,bild_3.png,bild_4.png,bild_5.png,bild_6.png,bild_7.png,bild_8.png
-002,AMAZON FINDS,Kitchen Finds,24.06.26,bild_1.png,bild_2.png,bild_3.png,,,,,
+post_id,title,subtitle,date,background,bild_1,bild_2,bild_3,bild_4,bild_5,bild_6,bild_7,bild_8
+001,AMAZON FINDS,Pilz Lampen,23.06.26,cover.png,bild_1.png,bild_2.png,bild_3.png,bild_4.png,bild_5.png,bild_6.png,bild_7.png,bild_8.png
+002,SUMMER FINDS,Dreamy,24.06.26,dreamy-summer.jpg,bild_1.png,bild_2.png,bild_3.png,,,,,
 ```
 
 Required columns:
@@ -78,6 +78,7 @@ Required columns:
 - `title`
 - `subtitle`
 - `date`
+- `background` as an optional background image filename from `assets/backgrounds/`
 - `bild_1` to `bild_8` as optional image columns
 
 You now need at least one image and can provide up to eight.
@@ -120,6 +121,8 @@ If one of these files exists, slide 1 uses it automatically with `50%` opacity:
 - `assets/backgrounds/cover.jpg`
 - `assets/backgrounds/cover.jpeg`
 - `assets/backgrounds/cover.webp`
+
+For Pinterest you can also set a per-post background in the CSV via the `background` column.
 
 ## Local Testing
 

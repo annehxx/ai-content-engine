@@ -21,6 +21,18 @@ def load_cover_overlay(width: int, height: int, opacity: float = 0.5) -> Image.I
     if background_path is None:
         return None
 
+    return load_background_overlay(background_path, width, height, opacity)
+
+
+def load_background_overlay(
+    background_path: Path,
+    width: int,
+    height: int,
+    opacity: float = 0.5,
+) -> Image.Image | None:
+    if not background_path.exists():
+        return None
+
     image = Image.open(background_path).convert("RGBA")
     image = image.resize((width, height), Image.LANCZOS)
     alpha = image.getchannel("A").point(lambda value: int(value * opacity))

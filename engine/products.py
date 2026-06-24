@@ -5,7 +5,15 @@ from pathlib import Path
 
 import pandas as pd
 
-from config import IMAGES_DIR, MAX_PRODUCTS, MIN_PRODUCTS, OPTIONAL_IMAGE_COLUMNS, REQUIRED_COLUMNS
+from config import (
+    BACKGROUNDS_DIR,
+    IMAGES_DIR,
+    MAX_PRODUCTS,
+    MIN_PRODUCTS,
+    OPTIONAL_IMAGE_COLUMNS,
+    OPTIONAL_METADATA_COLUMNS,
+    REQUIRED_COLUMNS,
+)
 
 
 class ProductDataError(Exception):
@@ -19,6 +27,7 @@ class PostRecord:
     subtitle: str
     date: str
     images: list[Path]
+    background: Path | None = None
 
 
 def load_posts(csv_path: Path) -> list[PostRecord]:
@@ -60,6 +69,13 @@ def load_posts(csv_path: Path) -> list[PostRecord]:
                 f"Post '{post_id}' supports at most {MAX_PRODUCTS} product images."
             )
 
+        background: Path | None = None
+        background_value = str(row.get("background", "")).strip()
+        if background_value:
+            background = BACKGROUNDS_DIR / background_value
+            if not background.exists():
+                raise ProductDataError(f"Background not found: {background}")
+
         posts.append(
             PostRecord(
                 post_id=post_id,
@@ -67,6 +83,7 @@ def load_posts(csv_path: Path) -> list[PostRecord]:
                 subtitle=subtitle,
                 date=date,
                 images=image_paths,
+                background=background,
             )
         )
 

@@ -27,6 +27,7 @@ REQUIRED_COLUMNS = [
 ]
 
 OPTIONAL_IMAGE_COLUMNS = [f"bild_{index}" for index in range(1, 9)]
+OPTIONAL_METADATA_COLUMNS = ["background"]
 MIN_PRODUCTS = 1
 MAX_PRODUCTS = 8
 

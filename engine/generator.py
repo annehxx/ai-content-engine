@@ -5,7 +5,7 @@ from pathlib import Path
 from PIL import Image, ImageDraw
 
 from config import OUTPUT_DIR, PLATFORM_CONFIGS
-from engine.background import load_cover_overlay, make_background
+from engine.background import load_background_overlay, load_cover_overlay, make_background
 from engine.export import ExportError, ensure_output_dir, save_slide
 from engine.image_tools import contain_image, open_product_image
 from engine.layout import Box, cover_boxes, pinterest_boxes, product_slide_boxes
@@ -141,7 +141,16 @@ class ContentGenerator:
 
     def _create_pinterest_pin(self, post: PostRecord) -> Image.Image:
         canvas = self._base_canvas()
-        overlay = load_cover_overlay(self.platform.width, self.platform.height, opacity=0.35)
+        overlay = None
+        if post.background is not None:
+            overlay = load_background_overlay(
+                post.background,
+                self.platform.width,
+                self.platform.height,
+                opacity=0.45,
+            )
+        if overlay is None:
+            overlay = load_cover_overlay(self.platform.width, self.platform.height, opacity=0.35)
         if overlay is not None:
             canvas.alpha_composite(overlay)
 
@@ -150,11 +159,11 @@ class ContentGenerator:
         for image_path, box in zip(post.images, pinterest_boxes(len(post.images))):
             self._paste_product(canvas, image_path, box)
 
-        title_font = fit_text(draw, post.subtitle.title(), 560, 80, 38, loader=load_title_font)
-        stack_font = fit_text(draw, post.title.title(), 560, 74, 34, loader=load_body_font)
+        title_font = fit_text(draw, post.subtitle.title(), 620, 84, 40, loader=load_title_font)
+        stack_font = fit_text(draw, post.title.title(), 600, 82, 40, loader=load_body_font)
         accent_font = load_body_font(58)
 
-        title_y = 640
+        title_y = 655
         centered_text(
             draw,
             post.subtitle.title(),
@@ -175,7 +184,7 @@ class ContentGenerator:
                 (20, 32, 60),
                 self.platform.width,
             )
-            current_y += 72
+            current_y += 78
 
         centered_text(
             draw,
