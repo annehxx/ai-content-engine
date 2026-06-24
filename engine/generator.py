@@ -8,7 +8,7 @@ from config import OUTPUT_DIR, PLATFORM_CONFIGS
 from engine.background import load_cover_overlay, make_background
 from engine.export import ExportError, ensure_output_dir, save_slide
 from engine.image_tools import contain_image, open_product_image
-from engine.layout import Box, cover_boxes, product_slide_boxes
+from engine.layout import Box, cover_boxes, pinterest_boxes, product_slide_boxes
 from engine.products import PostRecord, ProductDataError, load_posts
 from engine.typography import (
     centered_text,
@@ -44,6 +44,12 @@ class ContentGenerator:
     def _generate_post(self, post: PostRecord) -> None:
         destination = OUTPUT_DIR / post.post_id
         ensure_output_dir(destination)
+
+        if self.platform.name == "pinterest":
+            slides = [self._create_pinterest_pin(post)]
+            for index, slide in enumerate(slides, start=1):
+                save_slide(slide, destination / f"slide_{index}.png")
+            return
 
         slides = [self._create_cover(post)]
 
@@ -132,6 +138,62 @@ class ContentGenerator:
             self._paste_product(canvas, image_path, box)
 
         return canvas
+
+    def _create_pinterest_pin(self, post: PostRecord) -> Image.Image:
+        canvas = self._base_canvas()
+        overlay = load_cover_overlay(self.platform.width, self.platform.height, opacity=0.35)
+        if overlay is not None:
+            canvas.alpha_composite(overlay)
+
+        draw = ImageDraw.Draw(canvas)
+
+        for image_path, box in zip(post.images, pinterest_boxes(len(post.images))):
+            self._paste_product(canvas, image_path, box)
+
+        title_font = fit_text(draw, post.subtitle.title(), 560, 80, 38, loader=load_title_font)
+        stack_font = fit_text(draw, post.title.title(), 560, 74, 34, loader=load_body_font)
+        accent_font = load_body_font(58)
+
+        title_y = 640
+        centered_text(
+            draw,
+            post.subtitle.title(),
+            title_y,
+            title_font,
+            (35, 45, 75),
+            self.platform.width,
+        )
+
+        stack_lines = self._split_pinterest_title(post.title)
+        current_y = title_y + 92
+        for line in stack_lines:
+            centered_text(
+                draw,
+                line,
+                current_y,
+                stack_font,
+                (20, 32, 60),
+                self.platform.width,
+            )
+            current_y += 72
+
+        centered_text(
+            draw,
+            "♥",
+            current_y + 18,
+            accent_font,
+            (242, 179, 190),
+            self.platform.width,
+        )
+
+        return canvas
+
+    def _split_pinterest_title(self, title: str) -> list[str]:
+        parts = [part for part in title.upper().split() if part]
+        if len(parts) <= 2:
+            return [" ".join(parts)] if parts else [""]
+        mid = (len(parts) + 1) // 2
+        return [" ".join(parts[:mid]), " ".join(parts[mid:])]
 
     def _create_product_slide(
         self,

@@ -51,7 +51,7 @@ PLATFORM_CONFIGS = {
     "pinterest": PlatformConfig(
         name="pinterest",
         width=1080,
-        height=1350,
+        height=1620,
         background_color=(248, 246, 242),
         text_color=(145, 48, 34),
     ),

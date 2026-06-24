@@ -60,7 +60,7 @@ Place your CSV file in `input/` and your product images in `input/images/`.
 python main.py --csv input/product.csv --platform tiktok
 ```
 
-`pinterest` is accepted as a CLI option, but version `0.2.0` still uses the same layout preset as TikTok.
+`tiktok` creates the existing multi-slide carousel flow. `pinterest` creates a single vertical pin with background, title, subtitle and all products on one slide.
 
 ## CSV Format
 
@@ -92,6 +92,13 @@ output/<post_id>/
 ├── slide_2.png      # first product slide
 ├── slide_3.png      # optional second product slide
 └── slide_N.png      # CTA
+```
+
+For Pinterest, the output is a single file:
+
+```text
+output/<post_id>/
+└── slide_1.png
 ```
 
 ## Fonts
