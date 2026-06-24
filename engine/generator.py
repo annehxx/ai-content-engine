@@ -161,10 +161,10 @@ class ContentGenerator:
             self._paste_product(canvas, image_path, box)
 
         stack_lines = self._split_pinterest_title(post.title)
-        stack_font = fit_text(draw, post.title.title(), 820, 104, 56, loader=load_title_font)
-        subtitle_font = fit_text(draw, post.subtitle.title(), 620, 68, 38, loader=load_body_font)
+        stack_font = fit_text(draw, post.title.title(), 860, 98, 60, loader=load_title_font)
+        subtitle_font = fit_text(draw, post.subtitle.upper(), 560, 64, 34, loader=load_body_font)
 
-        title_y = 645
+        title_y = 610
         current_y = title_y
         for line in stack_lines:
             centered_text(
@@ -175,12 +175,12 @@ class ContentGenerator:
                 (15, 15, 15),
                 self.platform.width,
             )
-            current_y += 78
+            current_y += 72
 
         centered_text(
             draw,
-            post.subtitle.title(),
-            current_y + 48,
+            post.subtitle.upper(),
+            current_y + 28,
             subtitle_font,
             (15, 15, 15),
             self.platform.width,
