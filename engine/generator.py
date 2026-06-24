@@ -180,7 +180,7 @@ class ContentGenerator:
         centered_text(
             draw,
             post.subtitle.title(),
-            current_y + 24,
+            current_y + 48,
             subtitle_font,
             (15, 15, 15),
             self.platform.width,
