@@ -161,8 +161,8 @@ class ContentGenerator:
             self._paste_product(canvas, image_path, box)
 
         stack_lines = self._split_pinterest_title(post.title)
-        stack_font = fit_text(draw, post.title.title(), 720, 86, 44, loader=load_title_font)
-        subtitle_font = fit_text(draw, post.subtitle.title(), 520, 54, 28, loader=load_body_font)
+        stack_font = fit_text(draw, post.title.title(), 820, 104, 56, loader=load_title_font)
+        subtitle_font = fit_text(draw, post.subtitle.title(), 620, 68, 38, loader=load_body_font)
 
         title_y = 645
         current_y = title_y
